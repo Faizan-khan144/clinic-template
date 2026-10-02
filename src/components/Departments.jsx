@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import { departments } from '../brand.js'
 import { FadeUp, SectionHead } from './Reveal.jsx'
+import { Spotlight } from './Interactive.jsx'
 import { responsiveSrc } from './SmartImage.jsx'
 
 const EASE = [0.16, 1, 0.3, 1]
@@ -22,12 +23,13 @@ export default function Departments() {
             <div className="border-t border-ink/10">
               {departments.items.map((d, i) => (
                 <FadeUp key={d.title} delay={i * 0.06}>
-                  <div
-                    onMouseEnter={() => setActive(i)}
-                    onFocus={() => setActive(i)}
-                    tabIndex={0}
-                    className="group relative cursor-pointer border-b border-ink/10 py-7 outline-none transition-colors sm:py-9"
-                  >
+                  <Spotlight className="rounded-none">
+                    <div
+                      onMouseEnter={() => setActive(i)}
+                      onFocus={() => setActive(i)}
+                      tabIndex={0}
+                      className="group relative cursor-pointer border-b border-ink/10 py-7 outline-none transition-colors sm:py-9"
+                    >
                     <span
                       className={`absolute inset-x-0 bottom-0 h-px origin-left bg-green transition-transform duration-500 ease-out ${
                         active === i ? 'scale-x-100' : 'scale-x-0'
@@ -72,7 +74,8 @@ export default function Departments() {
                         />
                       </div>
                     </div>
-                  </div>
+                    </div>
+                  </Spotlight>
                 </FadeUp>
               ))}
             </div>
