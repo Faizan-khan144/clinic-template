@@ -5,14 +5,17 @@ export const brand = {
     'Verdant Clinic is a modern multi-specialty practice offering general medicine, dentistry, and diagnostics under one roof.',
   phone: '+92 300 000 0000',
   whatsapp: '+92 300 000 0000',
+  whatsappDigits: '923000000000',
   email: 'care@verdantclinic.com',
   address: '12 Zamzama Boulevard, Phase V, Karachi',
   mapsUrl: 'https://maps.google.com/',
   location: 'Karachi, Pakistan',
-  hours: [
-    { days: 'Monday to Friday', time: '9:00 AM - 8:00 PM' },
-    { days: 'Saturday', time: '10:00 AM - 4:00 PM' },
-    { days: 'Sunday', time: 'Emergency only' },
+  timezone: 'Asia/Karachi',
+  emergencyNote: 'Emergency cover is available at any hour. Call and we will open the door.',
+  schedule: [
+    { days: 'Monday to Friday', short: 'Mon – Fri', time: '9:00 AM – 8:00 PM', opens: 9, closes: 20, weekdays: [1, 2, 3, 4, 5] },
+    { days: 'Saturday', short: 'Saturday', time: '10:00 AM – 4:00 PM', opens: 10, closes: 16, weekdays: [6] },
+    { days: 'Sunday', short: 'Sunday', time: 'Emergency only', emergency: true },
   ],
 }
 
@@ -178,11 +181,32 @@ export const clinic = {
   ],
 }
 
-export const testimonial = {
-  quote:
-    'I came in with a fever on a Wednesday morning and left with lab results, a diagnosis, and the medicine in hand. I have never had that happen anywhere else in this city.',
-  author: 'Patient since 2019',
-  image: '/images/consult2.jpg',
+export const testimonials = {
+  kicker: 'Patient stories',
+  title: 'What people say after the visit',
+  items: [
+    {
+      quote:
+        'I came in with a fever on a Wednesday morning and left with lab results, a diagnosis, and the medicine in hand. I have never had that happen anywhere else in this city.',
+      author: 'Ayesha K.',
+      meta: 'Patient since 2019',
+      image: '/images/consult2.jpg',
+    },
+    {
+      quote:
+        'My daughter chipped a tooth on a Sunday evening. They reserved a slot for me and fixed it the same night. No panic, no waiting list.',
+      author: 'Bilal R.',
+      meta: 'Same-day dental emergency',
+      image: '/images/dental2.jpg',
+    },
+    {
+      quote:
+        'Six weeks of physiotherapy after a knee injury and I am running again. The plan was written down, so I knew exactly what to do at home each day.',
+      author: 'Sana M.',
+      meta: 'Sports rehabilitation',
+      image: '/images/care.jpg',
+    },
+  ],
 }
 
 export const contact = {

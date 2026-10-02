@@ -67,9 +67,9 @@ export default function Footer() {
           <div>
             <p className="text-[11px] font-semibold tracking-[0.18em] text-white/40 uppercase">Hours</p>
             <ul className="mt-4 space-y-2.5 text-[14px] text-white/70">
-              {brand.hours.map((h) => (
-                <li key={h.days}>
-                  {h.days} — {h.time}
+              {brand.schedule.map((s) => (
+                <li key={s.days}>
+                  {s.days} — {s.time}
                 </li>
               ))}
             </ul>
@@ -80,7 +80,7 @@ export default function Footer() {
           <p>
             {year} {brand.name}. All rights reserved.
           </p>
-          <p>Care without the wait.</p>
+          <p>{brand.tagline}</p>
         </div>
       </div>
     </footer>
