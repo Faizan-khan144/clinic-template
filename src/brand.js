@@ -46,6 +46,8 @@ export const marquee = [
 export const intro = {
   kicker: 'Why patients choose us',
   lines: ['Most clinics make you', 'wait three weeks', 'to be told to come back.'],
+  highlight:
+    'Same-day consultations, in-house diagnostics and one doctor who owns your problem from the first visit to the last.',
   body: 'We built Verdant around the opposite idea. Short waits, same-day consultations, and every test you need under one roof. You see one doctor who owns your problem from the first visit to the last.',
   image: '/images/reception.jpg',
   points: [
