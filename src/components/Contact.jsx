@@ -1,31 +1,65 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowUpRight, Check, Clock, MapPin, Phone } from 'lucide-react'
-import { brand, contact } from '../brand.js'
+import { ArrowUpRight, Check, Clock, MapPin, MessageCircle, Phone, ShieldCheck } from 'lucide-react'
+import { brand, contact, departments } from '../brand.js'
+import { clinicNow, mapsLink, whatsappLink } from '../lib/clinic.js'
 import { FadeUp, MaskLines } from './Reveal.jsx'
 
 const EASE = [0.16, 1, 0.3, 1]
 
-const reasons = [
-  'General consultation',
-  'Dental visit',
-  'Diagnostics or lab work',
-  'Physiotherapy',
-  'Skin concern',
-  'Something else',
-]
+const slots = ['As soon as possible', 'Today, this morning', 'Today, this afternoon', 'Tomorrow', 'Later this week']
+
+const empty = { name: '', phone: '', department: '', message: '', slot: slots[0], consent: false }
 
 export default function Contact() {
+  const [form, setForm] = useState(empty)
+  const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
+  const [tick, setTick] = useState(0)
   const reduce = useReducedMotion()
+
+  const status = useMemo(() => clinicNow(), [tick])
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 60000)
+    return () => clearInterval(id)
+  }, [])
+
+  const set = (key) => (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+    setForm((f) => ({ ...f, [key]: value }))
+    setErrors((prev) => ({ ...prev, [key]: undefined }))
+  }
+
+  const validate = () => {
+    const next = {}
+    if (form.name.trim().length < 2) next.name = 'Please enter your full name.'
+    const digits = form.phone.replace(/\D/g, '')
+    if (digits.length < 10) next.phone = 'Enter a valid phone number so we can confirm.'
+    if (!form.department) next.department = 'Choose the department you need.'
+    if (form.message.trim().length < 10) next.message = 'A short note helps us prepare for your visit.'
+    if (!form.consent) next.consent = 'Please allow us to contact you about this request.'
+    setErrors(next)
+    return Object.keys(next).length === 0
+  }
 
   const submit = (e) => {
     e.preventDefault()
+    if (!validate()) {
+      document.querySelector('[aria-invalid="true"]')?.focus()
+      return
+    }
     setSent(true)
   }
 
+  const waHref = whatsappLink(
+    `Hello Verdant Clinic, I would like to book a ${form.department || 'consultation'}. My name is ${form.name || ''} and my number is ${form.phone || ''}.`,
+  )
+
   const field =
-    'w-full rounded-xl border border-ink/12 bg-white px-4 py-3.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-fog focus:border-green'
+    'w-full rounded-xl border bg-white px-4 py-3.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-fog focus:border-forest'
+  const label = 'mb-2 block text-[12px] font-semibold tracking-[0.12em] text-graphite uppercase'
+  const err = 'mt-1.5 block text-[12.5px] font-medium text-red-600'
 
   return (
     <section id="contact" className="relative bg-paper px-5 py-24 sm:px-8 sm:py-32 lg:py-40">
@@ -50,7 +84,22 @@ export default function Contact() {
               <p className="mt-7 max-w-md text-[15px] leading-relaxed text-slate">{contact.body}</p>
             </FadeUp>
 
-            <FadeUp delay={0.3} className="mt-10 space-y-3">
+            <FadeUp delay={0.25}>
+              <div className="mt-7 inline-flex items-center gap-3 rounded-full border border-ink/10 bg-mist px-4 py-2.5">
+                <span className="relative flex h-2.5 w-2.5">
+                  {status.open && (
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf opacity-70" />
+                  )}
+                  <span
+                    className={`relative inline-flex h-2.5 w-2.5 rounded-full ${status.open ? 'bg-green' : 'bg-fog'}`}
+                  />
+                </span>
+                <span className="text-[13px] font-semibold text-ink">{status.label}</span>
+                <span className="text-[13px] text-slate">{status.detail}</span>
+              </div>
+            </FadeUp>
+
+            <FadeUp delay={0.3} className="mt-8 space-y-3">
               <a
                 href={`tel:${brand.phone.replace(/\s/g, '')}`}
                 className="group flex items-center justify-between gap-4 rounded-2xl bg-forest p-5 text-white transition-colors hover:bg-ink"
@@ -72,7 +121,29 @@ export default function Contact() {
               </a>
 
               <a
-                href={brand.mapsUrl}
+                href={waHref}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center justify-between gap-4 rounded-2xl border border-ink/10 p-5 transition-colors hover:bg-mist"
+              >
+                <span className="flex items-center gap-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-mist">
+                    <MessageCircle size={17} className="text-green" />
+                  </span>
+                  <span>
+                    <span className="block text-[11px] font-semibold tracking-[0.16em] text-fog uppercase">
+                      WhatsApp
+                    </span>
+                    <span className="mt-0.5 block text-[15px] font-semibold text-ink">
+                      Message us and get a slot
+                    </span>
+                  </span>
+                </span>
+                <ArrowUpRight size={18} className="shrink-0 text-fog transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+              </a>
+
+              <a
+                href={mapsLink}
                 target="_blank"
                 rel="noreferrer"
                 className="group flex items-center gap-4 rounded-2xl border border-ink/10 p-5 transition-colors hover:bg-mist"
@@ -99,13 +170,26 @@ export default function Contact() {
                   </span>
                 </div>
                 <dl className="mt-4 space-y-2 border-t border-ink/8 pt-4">
-                  {brand.hours.map((h) => (
-                    <div key={h.days} className="flex items-baseline justify-between gap-4">
-                      <dt className="text-[13.5px] text-slate">{h.days}</dt>
-                      <dd className="text-[13.5px] font-semibold text-ink">{h.time}</dd>
+                  {brand.schedule.map((s) => (
+                    <div
+                      key={s.days}
+                      className={`flex items-baseline justify-between gap-4 ${status.today?.days === s.days ? 'text-ink' : ''}`}
+                    >
+                      <dt className="flex items-center gap-2 text-[13.5px] text-slate">
+                        {s.days}
+                        {status.today?.days === s.days && (
+                          <span className="rounded-full bg-green/10 px-2 py-0.5 text-[10px] font-bold tracking-wide text-green uppercase">
+                            Today
+                          </span>
+                        )}
+                      </dt>
+                      <dd className="text-[13.5px] font-semibold text-ink">{s.time}</dd>
                     </div>
                   ))}
                 </dl>
+                <p className="mt-4 border-t border-ink/8 pt-4 text-[13px] leading-relaxed text-slate">
+                  {brand.emergencyNote}
+                </p>
               </div>
             </FadeUp>
           </div>
@@ -115,10 +199,11 @@ export default function Contact() {
               <div className="rounded-[1.75rem] border border-ink/10 bg-mist p-6 sm:p-9">
                 {sent ? (
                   <motion.div
-                    className="flex min-h-[420px] flex-col items-center justify-center text-center"
+                    className="flex min-h-[460px] flex-col items-center justify-center text-center"
                     initial={reduce ? false : { opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, ease: EASE }}
+                    aria-live="polite"
                   >
                     <span className="grid h-14 w-14 place-items-center rounded-full bg-green text-white">
                       <Check size={26} strokeWidth={2.4} />
@@ -127,61 +212,156 @@ export default function Contact() {
                       Request received
                     </h3>
                     <p className="mt-3 max-w-sm text-[14.5px] leading-relaxed text-slate">
-                      Thank you. The clinic will call you on the number you gave us, usually within the hour
-                      during opening times.
+                      Thank you, {form.name.split(' ')[0]}. The clinic will call you on {form.phone} to confirm
+                      your {form.department.toLowerCase()} slot, usually within the hour during opening times.
                     </p>
+                    <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                      <a
+                        href={waHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-3 text-[13.5px] font-semibold text-white transition-colors hover:bg-ink"
+                      >
+                        <MessageCircle size={15} />
+                        Confirm on WhatsApp
+                      </a>
+                      <a
+                        href={`tel:${brand.phone.replace(/\s/g, '')}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-ink/12 px-5 py-3 text-[13.5px] font-semibold text-ink transition-colors hover:bg-white"
+                      >
+                        <Phone size={15} />
+                        Call instead
+                      </a>
+                    </div>
                     <button
-                      onClick={() => setSent(false)}
+                      onClick={() => {
+                        setSent(false)
+                        setForm(empty)
+                      }}
                       className="mt-8 text-[13.5px] font-semibold text-green underline underline-offset-4"
                     >
                       Send another request
                     </button>
                   </motion.div>
                 ) : (
-                  <form onSubmit={submit} className="space-y-5">
+                  <form onSubmit={submit} noValidate className="space-y-5">
                     <div className="grid gap-5 sm:grid-cols-2">
                       <label className="block">
-                        <span className="mb-2 block text-[12px] font-semibold tracking-[0.12em] text-graphite uppercase">
-                          Full name
-                        </span>
-                        <input required name="name" type="text" placeholder="Your name" className={field} />
+                        <span className={label}>Full name</span>
+                        <input
+                          name="name"
+                          type="text"
+                          value={form.name}
+                          onChange={set('name')}
+                          placeholder="Your name"
+                          aria-invalid={Boolean(errors.name)}
+                          aria-describedby={errors.name ? 'err-name' : undefined}
+                          className={`${field} ${errors.name ? 'border-red-400' : 'border-ink/12'}`}
+                        />
+                        {errors.name && (
+                          <span id="err-name" className={err}>
+                            {errors.name}
+                          </span>
+                        )}
                       </label>
+
                       <label className="block">
-                        <span className="mb-2 block text-[12px] font-semibold tracking-[0.12em] text-graphite uppercase">
-                          Phone number
-                        </span>
-                        <input required name="phone" type="tel" placeholder="+92 3XX XXXXXXX" className={field} />
+                        <span className={label}>Phone number</span>
+                        <input
+                          name="phone"
+                          type="tel"
+                          inputMode="tel"
+                          value={form.phone}
+                          onChange={set('phone')}
+                          placeholder="+92 3XX XXXXXXX"
+                          aria-invalid={Boolean(errors.phone)}
+                          aria-describedby={errors.phone ? 'err-phone' : undefined}
+                          className={`${field} ${errors.phone ? 'border-red-400' : 'border-ink/12'}`}
+                        />
+                        {errors.phone && (
+                          <span id="err-phone" className={err}>
+                            {errors.phone}
+                          </span>
+                        )}
+                      </label>
+                    </div>
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <label className="block">
+                        <span className={label}>What do you need</span>
+                        <select
+                          name="department"
+                          value={form.department}
+                          onChange={set('department')}
+                          aria-invalid={Boolean(errors.department)}
+                          aria-describedby={errors.department ? 'err-department' : undefined}
+                          className={`${field} appearance-none ${errors.department ? 'border-red-400' : 'border-ink/12'}`}
+                        >
+                          <option value="">Choose a department</option>
+                          {departments.items.map((d) => (
+                            <option key={d.title} value={d.title}>
+                              {d.title}
+                            </option>
+                          ))}
+                        </select>
+                        {errors.department && (
+                          <span id="err-department" className={err}>
+                            {errors.department}
+                          </span>
+                        )}
+                      </label>
+
+                      <label className="block">
+                        <span className={label}>Preferred time</span>
+                        <select
+                          name="slot"
+                          value={form.slot}
+                          onChange={set('slot')}
+                          className={`${field} appearance-none border-ink/12`}
+                        >
+                          {slots.map((s) => (
+                            <option key={s} value={s}>
+                              {s}
+                            </option>
+                          ))}
+                        </select>
                       </label>
                     </div>
 
                     <label className="block">
-                      <span className="mb-2 block text-[12px] font-semibold tracking-[0.12em] text-graphite uppercase">
-                        What do you need
-                      </span>
-                      <select required name="reason" defaultValue="" className={`${field} appearance-none`}>
-                        <option value="" disabled>
-                          Choose a department
-                        </option>
-                        {reasons.map((r) => (
-                          <option key={r} value={r}>
-                            {r}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className="block">
-                      <span className="mb-2 block text-[12px] font-semibold tracking-[0.12em] text-graphite uppercase">
-                        Brief note
-                      </span>
+                      <span className={label}>Brief note</span>
                       <textarea
-                        required
                         name="message"
                         rows={5}
-                        placeholder="A short description of the problem, and when you would like to come in."
-                        className={`${field} resize-none`}
+                        value={form.message}
+                        onChange={set('message')}
+                        placeholder="A short description of the problem, and anything the doctor should know before you arrive."
+                        aria-invalid={Boolean(errors.message)}
+                        aria-describedby={errors.message ? 'err-message' : undefined}
+                        className={`${field} resize-none ${errors.message ? 'border-red-400' : 'border-ink/12'}`}
                       />
+                      {errors.message && (
+                        <span id="err-message" className={err}>
+                          {errors.message}
+                        </span>
+                      )}
                     </label>
+
+                    <label className="flex cursor-pointer items-start gap-3">
+                      <input
+                        type="checkbox"
+                        name="consent"
+                        checked={form.consent}
+                        onChange={set('consent')}
+                        aria-invalid={Boolean(errors.consent)}
+                        className="mt-0.5 h-4.5 w-4.5 shrink-0 accent-green"
+                      />
+                      <span className="text-[13px] leading-relaxed text-slate">
+                        I agree that Verdant Clinic may contact me on the number above about this appointment.
+                        My details are not shared with anyone else.
+                      </span>
+                    </label>
+                    {errors.consent && <span className={err}>{errors.consent}</span>}
 
                     <button
                       type="submit"
@@ -190,11 +370,32 @@ export default function Contact() {
                       Request an appointment
                     </button>
 
-                    <p className="text-center text-[12.5px] text-fog">
-                      Or call {brand.phone} directly. Emergencies are handled at any hour.
-                    </p>
+                    <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-center">
+                      <p className="text-[12.5px] text-fog">
+                        Prefer to talk? Call {brand.phone}. Emergencies handled at any hour.
+                      </p>
+                      <a
+                        href={waHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-green underline underline-offset-4"
+                      >
+                        <MessageCircle size={13} />
+                        Send on WhatsApp
+                      </a>
+                    </div>
                   </form>
                 )}
+              </div>
+            </FadeUp>
+
+            <FadeUp delay={0.2}>
+              <div className="mt-4 flex items-start gap-3 rounded-2xl border border-ink/8 bg-white px-5 py-4">
+                <ShieldCheck size={17} className="mt-0.5 shrink-0 text-green" />
+                <p className="text-[12.5px] leading-relaxed text-slate">
+                  Your medical details stay with your treating doctor. Nothing on this form is shared with
+                  third parties, and we never ask for payment before your appointment.
+                </p>
               </div>
             </FadeUp>
           </div>
