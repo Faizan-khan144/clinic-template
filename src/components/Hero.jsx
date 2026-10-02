@@ -1,0 +1,118 @@
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { ArrowRight, CalendarCheck } from 'lucide-react'
+import { useRef } from 'react'
+import { hero } from '../brand.js'
+import { responsiveSrc } from './SmartImage.jsx'
+import { MaskLines } from './Reveal.jsx'
+
+const EASE = [0.16, 1, 0.3, 1]
+
+export default function Hero() {
+  const ref = useRef(null)
+  const reduce = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+
+  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.14])
+  const textY = useTransform(scrollYProgress, [0, 1], [0, 90])
+  const textOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
+
+  return (
+    <section id="top" ref={ref} className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-paper">
+      <motion.div
+        className="absolute inset-0"
+        style={reduce ? undefined : { y: imgY, scale: imgScale }}
+      >
+        <motion.img
+          src={hero.image}
+          srcSet={responsiveSrc(hero.image)}
+          sizes="100vw"
+          alt="Verdant Clinic reception"
+          className="h-full w-full object-cover"
+          animate={reduce ? undefined : { scale: [1, 1.06, 1] }}
+          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+          fetchPriority="high"
+          loading="eager"
+          decoding="sync"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/55 to-white/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/35 to-transparent" />
+      </motion.div>
+
+      <motion.div
+        className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-14 sm:px-8 sm:pb-20"
+        style={reduce ? undefined : { y: textY, opacity: textOpacity }}
+      >
+        <motion.div
+          className="mb-7 inline-flex w-fit items-center gap-2.5 rounded-full border border-ink/10 bg-white/70 px-4 py-2 backdrop-blur-md"
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE }}
+        >
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf opacity-70" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green" />
+          </span>
+          <span className="text-[11px] font-semibold tracking-[0.2em] text-graphite uppercase">
+            {hero.eyebrow}
+          </span>
+        </motion.div>
+
+        <MaskLines
+          lines={hero.headline}
+          delay={0.12}
+          className="block text-[clamp(2.6rem,9.5vw,7rem)] leading-[0.9] font-extrabold tracking-[-0.045em] text-ink"
+        />
+
+        <div className="mt-8 flex flex-col gap-6 sm:mt-10 sm:flex-row sm:items-end sm:justify-between">
+          <motion.p
+            className="max-w-md text-[15px] leading-relaxed text-graphite sm:text-[17px]"
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.42, ease: EASE }}
+          >
+            {hero.body}
+          </motion.p>
+
+          <motion.div
+            className="flex flex-wrap items-center gap-3"
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.54, ease: EASE }}
+          >
+            <a
+              href={hero.primary.href}
+              className="group inline-flex items-center gap-2.5 rounded-full bg-green px-7 py-4 text-[14.5px] font-semibold text-white transition-colors hover:bg-forest"
+            >
+              <CalendarCheck size={17} strokeWidth={2.1} />
+              {hero.primary.label}
+            </a>
+            <a
+              href={hero.secondary.href}
+              className="group inline-flex items-center gap-2 rounded-full border border-ink/12 bg-white/70 px-7 py-4 text-[14.5px] font-semibold text-ink backdrop-blur-md transition-colors hover:bg-white"
+            >
+              {hero.secondary.label}
+              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </a>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        className="absolute right-5 bottom-6 z-10 hidden items-center gap-2.5 sm:right-8 sm:flex"
+        initial={reduce ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1, duration: 0.8 }}
+      >
+        <span className="text-[11px] font-medium tracking-[0.18em] text-slate uppercase">Scroll</span>
+        <span className="relative h-10 w-px overflow-hidden bg-ink/12">
+          <motion.span
+            className="absolute inset-x-0 top-0 h-4 bg-green"
+            animate={reduce ? undefined : { y: ['-100%', '250%'] }}
+            transition={{ duration: 1.9, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </span>
+      </motion.div>
+    </section>
+  )
+}
