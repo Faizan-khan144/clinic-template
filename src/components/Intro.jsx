@@ -1,10 +1,12 @@
 import { intro } from '../brand.js'
 import { FadeUp, MaskLines, ParallaxImage } from './Reveal.jsx'
+import { FloatingShapes, GrowingLine, HighlightText } from './ScrollFx.jsx'
 
 export default function Intro() {
   return (
     <section id="why" className="relative bg-paper px-5 py-24 sm:px-8 sm:py-32 lg:py-40">
-      <div className="mx-auto max-w-7xl">
+      <FloatingShapes />
+      <div className="relative mx-auto max-w-7xl">
         <div className="grid gap-14 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-6">
             <FadeUp>
@@ -21,11 +23,18 @@ export default function Intro() {
               className="block text-[clamp(1.9rem,5.2vw,3.4rem)] leading-[1.02] font-bold tracking-[-0.035em] text-ink"
             />
 
-            <FadeUp delay={0.2}>
-              <p className="mt-8 max-w-lg text-[15px] leading-relaxed text-slate sm:text-base">{intro.body}</p>
+            <FadeUp delay={0.1}>
+              <p className="mt-7 text-[17px] leading-relaxed font-medium text-graphite sm:text-[19px]">
+                <HighlightText text={intro.highlight} />
+              </p>
             </FadeUp>
 
-            <div className="mt-12 space-y-0 border-t border-ink/8">
+            <FadeUp delay={0.2}>
+              <p className="mt-5 max-w-lg text-[15px] leading-relaxed text-slate sm:text-base">{intro.body}</p>
+            </FadeUp>
+
+            <div className="mt-12 border-t border-ink/8">
+              <GrowingLine className="mt-0" />
               {intro.points.map((point, i) => (
                 <FadeUp key={point.title} delay={0.1 + i * 0.08}>
                   <div className="group grid grid-cols-[auto_1fr] gap-5 border-b border-ink/8 py-6 sm:gap-8">
