@@ -7,6 +7,7 @@ import Footer from './components/Footer.jsx'
 import Hero from './components/Hero.jsx'
 import Intro from './components/Intro.jsx'
 import Marquee from './components/Marquee.jsx'
+import MobileBar from './components/MobileBar.jsx'
 import Nav from './components/Nav.jsx'
 import Preloader from './components/Preloader.jsx'
 import Process from './components/Process.jsx'
@@ -26,6 +27,7 @@ export default function App() {
         Skip to content
       </a>
       <Nav />
+      <MobileBar />
       <div className="grain relative">
         <main>
           <Hero />
