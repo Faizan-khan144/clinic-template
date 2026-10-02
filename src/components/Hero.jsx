@@ -1,7 +1,8 @@
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, CalendarCheck } from 'lucide-react'
 import { useRef } from 'react'
-import { hero } from '../brand.js'
+import { hero, brand } from '../brand.js'
+import { Magnetic } from './Interactive.jsx'
 import { responsiveSrc } from './SmartImage.jsx'
 import { MaskLines } from './Reveal.jsx'
 
@@ -18,7 +19,11 @@ export default function Hero() {
   const textOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
 
   return (
-    <section id="top" ref={ref} className="relative h-[100svh] min-h-[620px] w-full overflow-hidden bg-paper">
+    <section
+      id="top"
+      ref={ref}
+      className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden bg-paper pt-24 pb-12 sm:pb-20 lg:min-h-[100svh] lg:justify-end lg:pt-0"
+    >
       <motion.div
         className="absolute inset-0"
         style={reduce ? undefined : { y: imgY, scale: imgScale }}
@@ -40,9 +45,30 @@ export default function Hero() {
       </motion.div>
 
       <motion.div
-        className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-end px-5 pb-14 sm:px-8 sm:pb-20"
+        className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-center px-5 sm:px-8 lg:h-full lg:justify-end"
         style={reduce ? undefined : { y: textY, opacity: textOpacity }}
       >
+        <motion.div
+          className="mb-6 flex items-center justify-between gap-4 border-b border-ink/8 pb-4 lg:mb-7"
+          initial={reduce ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: EASE }}
+        >
+          <span className="flex items-center gap-2 text-[11.5px] font-medium text-graphite">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-leaf opacity-70" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green" />
+            </span>
+            Same-day appointments available
+          </span>
+          <a
+            href={`tel:${brand.phone.replace(/\s/g, '')}`}
+            className="text-[11.5px] font-semibold text-green underline-offset-4 hover:underline"
+          >
+            {brand.phone}
+          </a>
+        </motion.div>
+
         <motion.div
           className="mb-7 inline-flex w-fit items-center gap-2.5 rounded-full border border-ink/10 bg-white/70 px-4 py-2 backdrop-blur-md"
           initial={reduce ? false : { opacity: 0, y: 14 }}
@@ -80,20 +106,26 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.54, ease: EASE }}
           >
-            <a
-              href={hero.primary.href}
-              className="group inline-flex items-center gap-2.5 rounded-full bg-green px-7 py-4 text-[14.5px] font-semibold text-white transition-colors hover:bg-forest"
-            >
-              <CalendarCheck size={17} strokeWidth={2.1} />
-              {hero.primary.label}
-            </a>
-            <a
-              href={hero.secondary.href}
-              className="group inline-flex items-center gap-2 rounded-full border border-ink/12 bg-white/70 px-7 py-4 text-[14.5px] font-semibold text-ink backdrop-blur-md transition-colors hover:bg-white"
-            >
-              {hero.secondary.label}
-              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
+            <Magnetic>
+              <a
+                href={hero.primary.href}
+                data-cursor="Book"
+                className="group inline-flex items-center gap-2.5 rounded-full bg-green px-7 py-4 text-[14.5px] font-semibold text-white transition-colors hover:bg-forest"
+              >
+                <CalendarCheck size={17} strokeWidth={2.1} />
+                {hero.primary.label}
+              </a>
+            </Magnetic>
+            <Magnetic>
+              <a
+                href={hero.secondary.href}
+                data-cursor="View"
+                className="group inline-flex items-center gap-2 rounded-full border border-ink/12 bg-white/70 px-7 py-4 text-[14.5px] font-semibold text-ink backdrop-blur-md transition-colors hover:bg-white"
+              >
+                {hero.secondary.label}
+                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </a>
+            </Magnetic>
           </motion.div>
         </div>
       </motion.div>
